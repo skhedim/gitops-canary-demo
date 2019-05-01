@@ -1,0 +1,21 @@
+---
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: init-istio
+  namespace: istio-system
+  annotations:
+    flux.weave.works/ignore: 'true'
+spec:
+  releaseName: init-istio
+  chart:
+    repository: https://storage.googleapis.com/istio-release/releases/1.1.0/charts/
+    name: istio-init
+    version: 1.1.0
+  values:
+    global:
+      hub: gcr.io/istio-release
+      tag: master-latest-daily
+      imagePullPolicy: IfNotPresent
+    certmanager:
+      enabled: false

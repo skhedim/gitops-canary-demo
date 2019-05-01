@@ -1,0 +1,64 @@
+{{- if .Values.canary.enabled }}
+apiVersion: flagger.app/v1alpha3
+kind: Canary
+metadata:
+  name: {{ template "myapp.fullname" . }}
+  labels:
+    app: {{ template "myapp.name" . }}
+    chart: {{ template "myapp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name:  {{ template "myapp.fullname" . }}
+  progressDeadlineSeconds: 60
+  autoscalerRef:
+    apiVersion: autoscaling/v2beta1
+    kind: HorizontalPodAutoscaler
+    name:  {{ template "myapp.fullname" . }}
+  service:
+    port: {{ .Values.service.port }}
+    {{- if .Values.canary.istioIngress.enabled }}
+    gateways:
+    -  {{ .Values.canary.istioIngress.gateway }}
+    hosts:
+    - {{ .Values.canary.istioIngress.host }}
+    {{- end }}
+  canaryAnalysis:
+    interval: {{ .Values.canary.analysis.interval }}
+    threshold: {{ .Values.canary.analysis.threshold }}
+    maxWeight: {{ .Values.canary.analysis.maxWeight }}
+    stepWeight: {{ .Values.canary.analysis.stepWeight }}
+    metrics:
+    - name: istio_requests_total
+      threshold: {{ .Values.canary.thresholds.successRate }}
+      interval: 1m
+    - name: istio_request_duration_seconds_bucket
+      threshold: {{ .Values.canary.thresholds.latency }}
+      interval: 1m
+    - name: "404s percentage"
+      threshold: 5
+      query: |
+        100 - sum(
+            rate(
+                istio_requests_total{
+                  reporter="destination",
+                  destination_workload_namespace="myapp",
+                  destination_workload="myapp",
+                  response_code!="404"
+                }[1m]
+            )
+        )
+        /
+        sum(
+            rate(
+                istio_requests_total{
+                  reporter="destination",
+                  destination_workload_namespace="myapp",
+                  destination_workload="myapp"
+                }[1m]
+            )
+        ) * 100
+{{- end }}

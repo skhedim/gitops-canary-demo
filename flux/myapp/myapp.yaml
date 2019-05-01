@@ -1,0 +1,26 @@
+---
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: myapp
+  namespace: myapp
+  annotations:
+    flux.weave.works/ignore: 'true'
+    flux.weave.works/automated: "true"
+    flux.weave.works/tag.chart-image: semver:~1.0
+spec:
+  releaseName: myapp
+  chart:
+    git: git@github.com:skhedim/gitops-canary-demo.git
+    path: charts/myapp
+    ref: master
+  values:
+    image:
+      repository: REGISTRY/REPOSITORY/myapp
+      tag: 1.0.0
+    canary:
+      enabled: true
+      istioIngress:
+        enabled: true
+        gateway: cloud-gw.istio-system.svc.cluster.local
+        host: <MY_SVC_IP>.xip.io

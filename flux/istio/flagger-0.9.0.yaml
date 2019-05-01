@@ -1,0 +1,16 @@
+---
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: flagger
+  namespace: "istio-system"
+  annotations:
+    flux.weave.works/ignore: 'true'
+spec:
+  releaseName: flagger
+  chart:
+    repository: https://flagger.app/
+    name: flagger
+    version: 0.9.0
+  values:
+    namespace: "myapp"
