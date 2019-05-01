@@ -125,7 +125,7 @@ spec:
       enabled: false
 ```
 
-> Do not forget to push your changes !
+> Do not forget to commit and push your changes.
 
 ```bash
 # Check the logs to see the deployment of the helm chart
@@ -169,9 +169,7 @@ prometheus-66c9f5694-tvstz                1/1     Running     0          12m
 
 #### Flagger
 
-Last application for the automation of canary deployment with Istio. We will use flux to deploy it as we did with Istio.
-
-Same procedure simply edit the flagger-0.9.0.yaml file and change the annotation flux.weave.works/ignore to false.
+Last application for the automation of canary deployment with Istio. We will use flux to deploy it as we did with Istio. Same procedure simply edit the flagger-0.9.0.yaml file and change the annotation flux.weave.works/ignore to false.
 
 ```yaml
 ---
@@ -203,7 +201,7 @@ Build and deploy our app
 
 Now we will be able to deploy our application on the cluster, and take advantage of the canary deployment features, as well as the deployment via Gitops.
 
-First we will build our application via a container, and publish its first version on the dockerhub registry.  For the simplicity of the example we will simply build a nginx image with a modified html index.
+First we will build our application via a container, and publish its first version on the dockerhub registry. For the simplicity of the example we will simply build a nginx image with a modified html index.
 
 ```bash
 cd demo-gitops/app
@@ -365,7 +363,7 @@ spec:
     hosts:
     - "*"
 
-# Check if you can see the canary configuration
+# Check if you can see the Canary configuration
 kubectl get canary -n myapp
 NAME    STATUS        WEIGHT   LASTTRANSITIONTIME
 myapp   Initialized   0        2019-04-01T08:33:42Z
@@ -401,7 +399,7 @@ kubectl -n flux logs -f $(kubectl -n flux get pods -l app=flux -o jsonpath='{.it
 
 Once Flux has detected that a new image has been pushed into the registry, that its tag matches the filter "tag.chart-image: semver:~1.0". It deploys the image and increments the helm chart revision.
 
-After that, Flagger who monitors the myapp namespace and waits for an image to be changed on a deployment. When it detects the image change made by Flux, it will create a second deployment with the old image, another with the new one named myapp-canary and create a Virtual service to load and balance traffic between the two deployments.
+After that, Flagger who monitors the myapp namespace and waits for an image to be changed on a deployment. When it detects the image change made by Flux, it will create a second deployment with the old image, another with the new one named myapp-canary and create a Virtual service to loadbalance traffic between the two deployments.
 
 ```yaml
 apiVersion: networking.istio.io/v1alpha3
@@ -520,7 +518,7 @@ NAME    STATUS   WEIGHT
 myapp   failed   0 
 ```
 
-The analysis failed because more than 5% of the traffic contained 404 errors. By default Flagger only takes into account 5XX errors in its analysis, but The canary analysis can be extended with custom Prometheus queries. For this demo I added a control on 404 errors to easily make the analysis fail.
+The analysis failed because more than 5% of the traffic contained 404 errors. By default Flagger only takes into account 5XX errors in its analysis, but the Canary analysis can be extended with custom Prometheus queries. For this demo I added a control on 404 errors to easily make the analysis fail.
 
 ```json
     metrics:
@@ -549,7 +547,7 @@ The analysis failed because more than 5% of the traffic contained 404 errors. By
         ) * 100
 ```
 
-The analysis having failed flagger a rollback on the previous version of the application, if you go to the URL of the application. you will see that you always in version 1.0.1.
+The analysis failed  and flagger rollback on the previous version of the application, if you go to the URL of the application. you will see that you always in version 1.0.1.
 
 Successful Canary analysis
 --------------------------
@@ -575,9 +573,9 @@ docker push REGISTRY/REPOSITORY/myapp:1.0.2
 
 # Check the images tags of each deployment
 kubectl get deploy -n myapp -o yaml | grep image        
-        - image: repository/myapp:1.0.2
-          imagePullPolicy: Always
         - image: repository/myapp:1.0.3
+          imagePullPolicy: Always
+        - image: repository/myapp:1.0.1
           imagePullPolicy: Always
 
 # Once the image update is complete, the canary analysis starts
