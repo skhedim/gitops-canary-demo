@@ -78,7 +78,7 @@ kubectl apply -f https://raw.githubusercontent.com/weaveworks/flux/master/deploy
 helm upgrade -i flux \
 --set helmOperator.create=true \
 --set helmOperator.createCRD=false \
---set git.url=git@github.com:<YOUR_USER>/cd-containers.git \
+--set git.url=git@github.com:<YOUR_USER>/gitops-canary-demo.git \
 --set git.path=flux/ \
 --namespace flux \
 weaveworks/flux
