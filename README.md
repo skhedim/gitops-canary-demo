@@ -22,8 +22,8 @@ Download the latest version of Helm for your operating system at the following U
 
 ```bash
 # Linux install
- wget https://storage.googleapis.com/kubernetes-helm/helm-v2.13.1-linux-amd64.tar.gz
- tar zxvf helm-v2.13.1-linux-amd64.tar.gz
+ wget https://get.helm.sh/helm-v2.14.3-linux-amd64.tar.gz
+ tar zxvf helm-v2.14.3-linux-amd64.tar.gz
  sudo mv linux-amd64/helm /usr/local/bin/
  rm -rf linux-amd64
 ```
@@ -60,8 +60,8 @@ helm init --service-account tiller
 
 # Check installation
 helm version
-Client: &version.Version{SemVer:"v2.13.1", GitCommit:"618447cbf203d147601b4b9bd7f8c37a5d39fbb4", GitTreeState:"clean"}
-Server: &version.Version{SemVer:"v2.13.1", GitCommit:"618447cbf203d147601b4b9bd7f8c37a5d39fbb4", GitTreeState:"clean"}
+Client: &version.Version{SemVer:"v2.14.3", GitCommit:"618447cbf203d147601b4b9bd7f8c37a5d39fbb4", GitTreeState:"clean"}
+Server: &version.Version{SemVer:"v2.14.3", GitCommit:"618447cbf203d147601b4b9bd7f8c37a5d39fbb4", GitTreeState:"clean"}
 ```
 
 #### Weave Flux
@@ -71,17 +71,16 @@ Now that Helm is installed, we will be able to deploy the different applications
 > Don't forget to fork this repo on your account you will need the URL of your fork during the installation of feeds.
 
 ```bash
-helm repo add weaveworks https://weaveworks.github.io/flux
-kubectl apply -f https://raw.githubusercontent.com/weaveworks/flux/master/deploy-helm/flux-helm-release-crd.yaml
+helm repo add fluxcd https://charts.fluxcd.io
+kubectl apply -f https://raw.githubusercontent.com/fluxcd/flux/helm-0.10.1/deploy-helm/flux-helm-release-crd.yaml
 
 # Install Weave Flux and its Helm Operator by specifying your fork URL (Just change your user)
 helm upgrade -i flux \
 --set helmOperator.create=true \
 --set helmOperator.createCRD=false \
---set git.url=git@github.com:<YOUR_USER>/gitops-canary-demo.git \
---set git.path=flux/ \
+--set git.url=git@github.com:YOURUSER/flux-get-started \
 --namespace flux \
-weaveworks/flux
+fluxcd/flux
 ```
 
 Retrieve the public key and add it to your forked repo. If you don't know how to do it, you can follow this documentation https://developer.github.com/v3/guides/managing-deploy-keys/#deploy-keys
@@ -185,7 +184,7 @@ spec:
   chart:
     repository: https://flagger.app/
     name: flagger
-    version: 0.9.0
+    version: 0.19.0
   values:
     namespace: "myapp"
 ```
